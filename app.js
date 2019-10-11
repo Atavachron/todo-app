@@ -4,6 +4,8 @@ const app = express();
 const mongodb = require('mongodb');
 let db;
 
+app.use(express.urlencoded({extended: false}));
+
 
 //Update password in the connection string in order to be able to connect to your TodoApp database in your Atlas MongoDB account
 const connectionString = 'mongodb+srv://appUser:<password>@cluster0-3fldm.mongodb.net/TodoApp?retryWrites=true&w=majority' 
@@ -15,7 +17,8 @@ mongodb.connect(connectionString, {useNewUrlParser: true, useUnifiedTopology: tr
 
 
 app.get('/', (req, res) => {
-  res.send(`
+  db.collection('items').find().toArray((err, items) => {
+    res.send(`
   <!DOCTYPE html>
   <html>
   <head>
@@ -29,36 +32,24 @@ app.get('/', (req, res) => {
       <h1 class="display-4 text-center py-1">To-Do App</h1>
       
       <div class="jumbotron p-3 shadow-sm">
-        <form>
+        <form action="/add-item" method="POST">
           <div class="d-flex align-items-center">
-            <input autofocus autocomplete="off" class="form-control mr-3" type="text" style="flex: 1;">
+            <input autofocus autocomplete="off" class="form-control mr-3" type="text" name="item" style="flex: 1;">
             <button class="btn btn-primary">Add New Item</button>
           </div>
         </form>
       </div>
       
       <ul class="list-group pb-5">
-        <li class="list-group-item list-group-item-action d-flex align-items-center justify-content-between">
-          <span class="item-text">Fake example item #1</span>
+        ${items.map(item => {
+          return `<li class="list-group-item list-group-item-action d-flex align-items-center justify-content-between">
+          <span class="item-text">${item.text}</span>
           <div>
             <button class="edit-me btn btn-secondary btn-sm mr-1">Edit</button>
             <button class="delete-me btn btn-danger btn-sm">Delete</button>
           </div>
-        </li>
-        <li class="list-group-item list-group-item-action d-flex align-items-center justify-content-between">
-          <span class="item-text">Fake example item #2</span>
-          <div>
-            <button class="edit-me btn btn-secondary btn-sm mr-1">Edit</button>
-            <button class="delete-me btn btn-danger btn-sm">Delete</button>
-          </div>
-        </li>
-        <li class="list-group-item list-group-item-action d-flex align-items-center justify-content-between">
-          <span class="item-text">Fake example item #3</span>
-          <div>
-            <button class="edit-me btn btn-secondary btn-sm mr-1">Edit</button>
-            <button class="delete-me btn btn-danger btn-sm">Delete</button>
-          </div>
-        </li>
+        </li>`
+        }).join('')}
       </ul>
       
     </div>
@@ -66,5 +57,13 @@ app.get('/', (req, res) => {
   </body>
   </html>
   `);
+  })
+  
 })
 
+app.post('/add-item', (req, res) => {
+  db.collection('items').insertOne({text: req.body.item}, () => {
+    console.log(req.body.item);
+    res.redirect('/');
+  })
+})
