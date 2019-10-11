@@ -5,6 +5,8 @@ const mongodb = require('mongodb');
 let db;
 
 app.use(express.urlencoded({extended: false}));
+app.use(express.static('public'));
+app.use(express.json());
 
 
 //Update password in the connection string in order to be able to connect to your TodoApp database in your Atlas MongoDB account
@@ -45,15 +47,16 @@ app.get('/', (req, res) => {
           return `<li class="list-group-item list-group-item-action d-flex align-items-center justify-content-between">
           <span class="item-text">${item.text}</span>
           <div>
-            <button class="edit-me btn btn-secondary btn-sm mr-1">Edit</button>
-            <button class="delete-me btn btn-danger btn-sm">Delete</button>
+            <button data-id="${item._id}" class="edit-me btn btn-secondary btn-sm mr-1">Edit</button>
+            <button data-id="${item._id}" class="delete-me btn btn-danger btn-sm">Delete</button>
           </div>
         </li>`
         }).join('')}
       </ul>
       
     </div>
-    
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="/browser.js"></script>
   </body>
   </html>
   `);
@@ -63,7 +66,18 @@ app.get('/', (req, res) => {
 
 app.post('/add-item', (req, res) => {
   db.collection('items').insertOne({text: req.body.item}, () => {
-    console.log(req.body.item);
     res.redirect('/');
+  })
+})
+
+app.post('/edit-item', (req, res) => {
+  db.collection('items').findOneAndUpdate({_id: new mongodb.ObjectId(req.body.id)}, {$set: {text: req.body.text}}, () => {
+    res.send("Success");
+  })
+})
+
+app.post('/delete-item', (req, res) => {
+  db.collection('items').deleteOne({_id: new mongodb.ObjectId(req.body.id)}, () => {
+    res.send("Success");
   })
 })
