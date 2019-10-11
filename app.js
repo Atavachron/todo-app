@@ -1,9 +1,18 @@
 const express = require('express');
 const port = process.env.PORT || 3000;
-
 const app = express();
+const mongodb = require('mongodb');
+let db;
 
-app.listen(port, () => console.log(`Server listening on port ${port}`));
+
+//Update password in the connection string in order to be able to connect to your TodoApp database in your Atlas MongoDB account
+const connectionString = 'mongodb+srv://appUser:<password>@cluster0-3fldm.mongodb.net/TodoApp?retryWrites=true&w=majority' 
+
+mongodb.connect(connectionString, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
+  db = client.db();
+  app.listen(port, () => console.log(`Server listening on port ${port}`));
+});
+
 
 app.get('/', (req, res) => {
   res.send(`
