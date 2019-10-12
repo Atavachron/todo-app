@@ -2,6 +2,7 @@ const express = require('express');
 const port = process.env.PORT || 3000;
 const app = express();
 const mongodb = require('mongodb');
+const sanitizeHtml = require('sanitize-html');
 let db;
 
 app.use(express.urlencoded({extended: false}));
@@ -66,17 +67,18 @@ app.get('/', (req, res) => {
   </html>
   `);
   })
-  
 })
 
 app.post('/add-item', (req, res) => {
-  db.collection('items').insertOne({text: req.body.text}, (err, info) => {
+  let safeText = sanitizeHtml(req.body.text, {allowedTags: [], allowedAttributes: {}})
+  db.collection('items').insertOne({text: safeText}, (err, info) => {
     res.send(info.ops[0]);
   })
 })
 
 app.post('/edit-item', (req, res) => {
-  db.collection('items').findOneAndUpdate({_id: new mongodb.ObjectId(req.body.id)}, {$set: {text: req.body.text}}, () => {
+  let safeText = sanitizeHtml(req.body.text, {allowedTags: [], allowedAttributes: {}})
+  db.collection('items').findOneAndUpdate({_id: new mongodb.ObjectId(req.body.id)}, {$set: {text: safeText}}, () => {
     res.send("Success");
   })
 })
