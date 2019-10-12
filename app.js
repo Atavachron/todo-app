@@ -11,7 +11,6 @@ app.use(express.json());
 
 //Update connection string in order to be able to connect to your TodoApp database in your Atlas MongoDB account
 const connectionString = 'mongodb+srv://appUser:<password>@cluster0-3fldm.mongodb.net/TodoApp?retryWrites=true&w=majority' 
-
 mongodb.connect(connectionString, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
   db = client.db();
   app.listen(port, () => console.log(`Server listening on port ${port}`));
@@ -43,18 +42,12 @@ app.get('/', (req, res) => {
       </div>
       
       <ul id="item-list" class="list-group pb-5">
-        ${items.map(item => {
-          return `<li class="list-group-item list-group-item-action d-flex align-items-center justify-content-between">
-          <span class="item-text">${item.text}</span>
-          <div>
-            <button data-id="${item._id}" class="edit-me btn btn-secondary btn-sm mr-1">Edit</button>
-            <button data-id="${item._id}" class="delete-me btn btn-danger btn-sm">Delete</button>
-          </div>
-        </li>`
-        }).join('')}
       </ul>
       
     </div>
+    <script>
+      let items = ${JSON.stringify(items)}
+    </script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="/browser.js"></script>
   </body>

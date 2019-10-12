@@ -11,6 +11,13 @@ function htmlTemplate(item) {
   </li>`
 }
 
+let ourHtml = items.map(item => {
+  return htmlTemplate(item)
+}).join('');
+
+document.getElementById('item-list').insertAdjacentHTML('beforeend', ourHtml);
+
+
 document.addEventListener('submit', e => {
   e.preventDefault();
   if (textField.value) {
