@@ -16,6 +16,18 @@ mongodb.connect(connectionString, {useNewUrlParser: true, useUnifiedTopology: tr
   app.listen(port, () => console.log(`Server listening on port ${port}`));
 });
 
+//Username: user
+//Password: qwerty
+function passwordProtect(req, res, next) {
+  res.set('WWW-Authenticate', "Basic realm='Simple To-Do App'");
+  if (req.headers.authorization == 'Basic dXNlcjpxd2VydHk=') {
+    next();
+  } else {
+    res.status(401).send("Authorization required")
+  }
+}
+
+app.use(passwordProtect);
 
 app.get('/', (req, res) => {
   db.collection('items').find().toArray((err, items) => {
