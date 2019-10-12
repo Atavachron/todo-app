@@ -3,22 +3,27 @@ const port = process.env.PORT || 3000;
 const app = express();
 const mongodb = require('mongodb');
 const sanitizeHtml = require('sanitize-html');
-let db;
 
 app.use(express.urlencoded({extended: false}));
 app.use(express.static('public'));
 app.use(express.json());
 
 
+//Setting up connection to mongodb. Server will start listening once the connection is established.
 //Update connection string in order to be able to connect to your TodoApp database in your Atlas MongoDB account
+
 const connectionString = 'mongodb+srv://appUser:<password>@cluster0-3fldm.mongodb.net/TodoApp?retryWrites=true&w=majority' 
+let db;
 mongodb.connect(connectionString, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
   db = client.db();
   app.listen(port, () => console.log(`Server listening on port ${port}`));
 });
 
+
+//Setting up password protection
 //Username: user
 //Password: qwerty
+
 function passwordProtect(req, res, next) {
   res.set('WWW-Authenticate', "Basic realm='Simple To-Do App'");
   if (req.headers.authorization == 'Basic dXNlcjpxd2VydHk=') {
@@ -30,6 +35,7 @@ function passwordProtect(req, res, next) {
 
 app.use(passwordProtect);
 
+//Routes
 app.get('/', (req, res) => {
   db.collection('items').find().toArray((err, items) => {
     res.send(`
@@ -43,8 +49,7 @@ app.get('/', (req, res) => {
   </head>
   <body>
     <div class="container">
-      <h1 class="display-4 text-center py-1">To-Do App</h1>
-      
+      <h1 class="display-4 text-center py-1">To-Do App</h1>  
       <div class="jumbotron p-3 shadow-sm">
         <form id="item-form" action="/add-item" method="POST">
           <div class="d-flex align-items-center">
@@ -52,11 +57,9 @@ app.get('/', (req, res) => {
             <button class="btn btn-primary">Add New Item</button>
           </div>
         </form>
-      </div>
-      
-      <ul id="item-list" class="list-group pb-5">
-      </ul>
-      
+      </div>    
+        <ul id="item-list" class="list-group pb-5">
+        </ul>
     </div>
     <script>
       let items = ${JSON.stringify(items)}
