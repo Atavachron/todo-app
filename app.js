@@ -1,5 +1,7 @@
 const express = require('express');
-const port = process.env.PORT || 3000;
+const dotenv = require('dotenv')
+dotenv.config();
+
 const app = express();
 const mongodb = require('mongodb');
 const sanitizeHtml = require('sanitize-html');
@@ -12,11 +14,11 @@ app.use(express.json());
 //Setting up connection to mongodb. Server will start listening once the connection is established.
 //Update connection string in order to be able to connect to your TodoApp database in your Atlas MongoDB account
 
-const connectionString = 'mongodb+srv://appUser:<password>@cluster0-3fldm.mongodb.net/TodoApp?retryWrites=true&w=majority' 
+
 let db;
-mongodb.connect(connectionString, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
+mongodb.connect(process.env.CONNECTIONSTRING, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
   db = client.db();
-  app.listen(port, () => console.log(`Server listening on port ${port}`));
+  app.listen(process.env.PORT, () => console.log(`Server listening on port ${process.env.PORT}`));
 });
 
 
